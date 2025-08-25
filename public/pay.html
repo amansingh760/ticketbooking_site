@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Test Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .container {
+            background-image: url('https://myonlinevipani.com/wp-content/uploads/2020/11/My-Online-Vipani-Google-Pay-QR-Code.jpg');
+            background-size: cover;
+            background-position: center;
+            width: 25vw;
+            height: 25vw;
+            margin-left: 34vw;
+            margin-top: 2vw;
+            border-radius: 2vw;
+            box-shadow: 10px 10px 10px 6px rgba(0, 0, 0, 0.3);
+        }
+        .button {
+            margin-left: 43vw;
+            margin-top: 5vw;
+        }
+        .ticket {
+            padding: 1vw 2vw;
+            font-size: 1.2vw;
+            border: none;
+            border-radius: 1vw;
+            background-color: rgb(100, 181, 246);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .ticket:hover {
+            background-color: rgb(60, 139, 229);
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="button">
+        <button type="button" class="ticket" onclick="payNow()">Pay with Razorpay</button>
+    </div>
+
+    <script>
+        function payNow() {
+            var options = {
+                "key": "rzp_test_YourTestKeyHere", // Replace with your Razorpay Test Key
+                "amount": "50000", // Amount in paise = ₹500.00
+                "currency": "INR",
+                "name": "Your Company Name",
+                "description": "Test Transaction",
+                "image": "https://your-logo-url.com/logo.png", // Optional
+                "handler": function (response){
+                    alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                    window.location.href = "tic.html"; // Redirect after payment
+                },
+                "prefill": {
+                    "name": "Test User",
+                    "email": "test@example.com",
+                    "contact": "9999999999"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+    </script>
+
+</body>
+</html>

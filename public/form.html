@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Booking</title>
+   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+   <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "yCrQiDke2exuE3lzm",
+      });
+   })();
+</script>
+
+
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+    const price = urlParams.get('price');
+    const museum = urlParams.get('museum');
+
+    document.getElementById('ticket-price').textContent = price
+    
+      ? `Ticket Price: ₹${price}`
+      : 'Ticket price not available.';
+
+    document.getElementById('museum-name').textContent = museum
+      ? `Museum: ${decodeURIComponent(museum)}`
+      : 'Museum name not available.';
+</script>
+
+
+
+
+
+
+  <style>
+    body {
+      background-image: url('your-background.jpg'); /* Optional */
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    .container {
+      background-color: rgba(128, 189, 227, 0.434);
+      width: 45vw;
+      height: auto;
+      margin-left: 26vw;
+      margin-top: 2vw;
+      border-radius: 10vw;
+      box-shadow: 10px 10px 10px 6px;
+      padding-bottom: 3vw;
+    }
+
+    #sub:hover {
+      background-color: rgb(60, 139, 229);
+    }
+
+    .cont2 {
+      padding-top: 6vw;
+      margin-left: 8vw;
+      font-size: 3vw;
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+
+    .form {
+      text-align: center;
+      margin-top: 3vw;
+      font-weight: bold;
+      font-size: 4vw;
+      padding-top: 2vw;
+    }
+
+    .ticket {
+      height: 3vw;
+      width: 15vw;
+      border: 2px solid black;
+      border-radius: 2vw;
+      font-size: 2vw;
+      margin-top: 3vw;
+    }
+
+    .form-row {
+      font-size: 15px;
+      margin: 1vw 0;
+    }
+
+    .form-row input,
+    .form-row button {
+      font-size: 1vw;
+      margin-left: 1vw;
+    }
+
+    .time-buttons button {
+  margin: 0 0.1vw;
+  padding: 0.5vw 0.1vw;
+  border-radius: 0vw;
+  border: 1px solid #333;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+
+#clear:hover {
+  background-color: rgb(60, 139, 229);
+}
+
+.time-buttons button.selected {
+  background-color: #3c8be5;
+  color: white;
+}
+    .required {
+      color: red;
+      font-size: 15px;
+    }
+  </style>
+
+
+
+
+</head>
+<body>
+  <div class="container">
+    <div class="cont2">Ticket Booking Details</div>
+    <div class="form -group">
+      <div class="form-row">
+        <b>NAME</b><sup class="required">*</sup>
+        <input type="text" id="name" placeholder="Enter name" />
+      </div>
+
+      <div class="form-row">
+        <b>Email</b><sup class="required">*</sup>
+        <input type="email" id="email" placeholder="Enter G mail " required />
+      </div>
+
+      <div class="form-row">
+        <b>Date</b><sup class="required">*</sup>
+        <input type="date" id="date" />
+      </div>
+
+      <div class="form-row">
+  <b>Time slot</b><sup class="required">*</sup>
+  <br><br>
+  <div class="time-buttons">
+    <button type="button" class="time-btn" data-time="09:55">09:00 AM-10:00 AM</button>
+    <button type="button" class="time-btn" data-time="10:55">10:00 AM-11:00 AM</button>
+    <button type="button" class="time-btn" data-time="11:55">11:00 AM-12:00 PM</button>
+    <button type="button" class="time-btn" data-time="12:55 ">12:00 PM-01:00 PM</button><br><br>
+    <button type="button" class="time-btn" data-time="13:55 ">01:00 PM-02:00 PM</button>
+    <button type="button" class="time-btn" data-time="14:55 ">02:00 PM-03:00 PM</button>
+    <button type="button" class="time-btn" data-time="15:55 ">03:00 PM-04:00 PM</button>
+    <button type="button" class="time-btn" data-time="16:15 ">04:00 PM-04:30 PM</button>
+    
+  </div>
+</div>
+
+      <div class="form-row">
+        <b>No of Tickets</b><br><br>
+        Child<input type="number" id="child" min="0" max="4" placeholder="Child" value="0" />
+        Adult<sup class="required">*</sup><input type="number" id="adult" min="1" max="10" placeholder="Adult" />
+      </div>
+
+      <div class="submit-button">
+  <button type="button" id="sub" class="ticket" onclick="submitForm()">Get Your Ticket</button>
+  <button type="button" id="clear" class="ticket" onclick="clearForm()" style="margin-left: 0.5vw;">Clear</button>
+</div>
+
+    </div>
+  </div>
+
+  <script>
+    var a,t;
+    let selectedTime = "";
+
+    // Set today's date as minimum
+    const dateInput = document.getElementById("date");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+
+    // Time slot selection
+    document.querySelectorAll(".time-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        if (button.disabled) return;
+
+        document.querySelectorAll(".time-btn").forEach(btn => btn.classList.remove("selected"));
+        button.classList.add("selected");
+        selectedTime = button.getAttribute("data-time");
+      });
+    });
+
+    // Disable past time slots if date is today
+    dateInput.addEventListener("change", () => {
+      const selectedDate = new Date(dateInput.value);
+      const now = new Date();
+
+      document.querySelectorAll(".time-btn").forEach(button => {
+        const timeStr = button.getAttribute("data-time");
+        const [timePart, meridian] = timeStr.split(" ");
+        let [hour, minute] = timePart.split(":").map(Number);
+        if (meridian === "PM" && hour !== 12) hour += 12;
+        if (meridian === "AM" && hour === 12) hour = 0;
+
+        const timeDate = new Date(selectedDate);
+        timeDate.setHours(hour, minute, 0, 0);
+
+        if (
+          selectedDate.toDateString() === now.toDateString() &&
+          timeDate.getTime() <= now.getTime()
+        ) {
+          button.disabled = true;
+          button.style.opacity = "0.5";
+          button.style.cursor = "not-allowed";
+        } else {
+          button.disabled = false;
+          button.style.opacity = "1";
+          button.style.cursor = "pointer";
+        }
+      });
+    });
+    function submitForm() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const date = document.getElementById("date").value;
+      const child = document.getElementById("child").value;
+      const adult = document.getElementById("adult").value;
+      t = selectedTime;
+      if (t==="09:55")
+    {
+      t="09:00 AM-10:00 AM";
+    }
+    if (t==="10:55")
+    {
+      t="10:00 AM-11:00 AM";
+    }if (t==="11:55")
+    {
+      t="11:00 AM-12:00 NOON";
+    }if (t==="12:55")
+    {
+      t="12:00 NOON-01:00 PM";
+    }if (t==="13:55")
+    {
+      t="01:00 PM-10:00 PM";
+    }if (t==="14:55")
+    {
+      t="02:00 PM-03:00 PM";
+    }
+
+    if (t==="15:55")
+    {
+      t="03:00 PM-04:00 PM";
+    }
+    if (t==="16:15")
+    {
+      t="04:00 PM-04:30 PM";
+    }
+
+      
+      //const museum=document.getElementById(museum).value.trim();
+        //alert(museum);
+//if(1===1){
+  //alert(price)
+//}
+
+       if (!name) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  if (!email) {
+    alert("Please enter your email.");
+    return;
+  }
+
+  if (!date) {
+    alert("Please select a date.");
+    return;
+  }
+
+  if (!selectedTime) {
+    alert("Please select a time slot.");
+    return;
+  }
+
+  if (!adult || parseInt(adult) < 1) {
+    alert("Please enter at least one adult ticket.");
+    return;
+  }
+a=((50000*adult)+(20000*child));
+
+
+
+const options = {
+        key: "rzp_test_R621lPtd7qF7HB", // Replace with your Razorpay test key
+        amount:a,
+        currency: "INR",
+        name: "Ticket Booking",
+        description: "Test Transaction",
+        handler: function (response) {
+          emailjs.send("service_wiq3snm", "template_7r6rwup", {
+            name, email, date, t , child, adult, payment_id: response.razorpay_payment_id ,museum
+          }).then(() => {
+            const params = new URLSearchParams({
+              name, email, date, t,
+              child, adult, payment_id: response.razorpay_payment_id ,museum
+            });
+            clearForm();
+            window.location.href = "tic.html?" + params.toString();
+          });
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+
+
+
+/*
+  payNow();
+
+      // Redirect to payment page
+      //window.location.href = "pay.html";
+    }
+
+
+    function payNow() {
+            var options = {
+                "key": "rzp_test_R621lPtd7qF7HB", // Replace with your Razorpay Test Key
+                "amount": a, // Amount in paise = ₹500.00
+                "currency": "INR",
+                "name": "Your Company Name",
+                "description": "Test Transaction",
+                "image": "https://your-logo-url.com/logo.png", // Optional
+                "handler": function (response){
+                    alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                    sendMail();
+                    //window.location.href = "tic.html"; // Redirect after payment
+                },
+                "prefill": {
+                    "name": "Test User",
+                    "email": "test@example.com",
+                    "contact": "9999999999"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+
+
+  function sendMail(){
+    var params={
+      name: document.getElementById("name").value,
+  email : document.getElementById("email").value,
+  date : document.getElementById("date").value ,
+  child :document.getElementById("child").value,
+  adult :document.getElementById("adult").value ,
+  time :selectedTime
+    };
+const service_id = "service_wiq3snm";
+const template_id="template_7r6rwup" ;
+emailjs
+.send(service_id,template_id,params)
+.then((res)=>{
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("child").value = "";
+  document.getElementById("adult").value = "";
+  selectedTime = "";
+  console.log(res);
+  alert("email send successfully");
+
+})
+.catch((err)=>console.log(err));
+alert("mail not send",err);
+}
+*/
+
+  function clearForm() {
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("date").value = "";
+  document.getElementById("child").value = "";
+  document.getElementById("adult").value = "";
+  selectedTime = "";
+
+  // Remove selected class from time buttons
+  document.querySelectorAll(".time-btn").forEach(btn => btn.classList.remove("selected"));
+}
+
+
+// get ticket price and museum name
+
+
+
+
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking Confirmation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 2vw;
+    }
+    .ticket-box {
+      background-color: white;
+      padding: 2vw;
+      border-radius: 1vw;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      max-width: 600px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    .details {
+      margin-top: 1vw;
+      font-size: 1.2vw;
+    }
+    .details p {
+      margin: 0.5vw 0;
+    }
+    .download-btn {
+      display: block;
+      margin: 2vw auto;
+      padding: 0.8vw 2vw;
+      font-size: 1.2vw;
+      background-color: #3c8be5;
+      color: white;
+      border: none;
+      border-radius: 0.5vw;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ticket-box" id="ticket">
+    <h2> <b>Booking Confirmed</b></h2>
+    <div class="details" id="details"></div>
+    <button class="download-btn" onclick="downloadPDF()">Download Ticket</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const detailsDiv = document.getElementById("details");
+
+    const bookingDetails = {
+     
+      Name: params.get("name"),
+      Email: params.get("email"),
+      "Museum ": params.get("museum"),
+      Date: params.get("date"),
+      Time: params.get("t"),
+      "Child Tickets": params.get("child"),
+      "Adult Tickets": params.get("adult"),
+      "Payment ID": params.get("payment_id")
+      
+    };
+
+    for (const [key, value] of Object.entries(bookingDetails)) {
+      const p = document.createElement("p");
+      p.textContent = `${key}: ${value}`;
+      detailsDiv.appendChild(p);
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("🎟️ Ticket Confirmation", 20, 20);
+
+      let y = 30;
+      for (const [key, value] of Object.entries(bookingDetails)) {
+        doc.text(`${key}: ${value}`, 20, y);
+        y += 10;
+      }
+
+      doc.save("Ticket_Confirmation.pdf");
+    }
+  </script>
+</body>
+</html>
