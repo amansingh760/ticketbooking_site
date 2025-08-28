@@ -39,7 +39,7 @@ const Chatbot = () => {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        fetch('http://localhost:5000/state-data')
+        fetch('https://ticketbooking-site.vercel.app/state-data')
             .then((response) => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -96,7 +96,7 @@ const Chatbot = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const response = await fetch('http://localhost:5000/get-museum-data', {
+        const response = await fetch('https://ticketbooking-site.vercel.app/get-museum-data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ state: selectedOption }),
